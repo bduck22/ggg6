@@ -7,7 +7,7 @@ public class CharacterHit : MonoBehaviour
     Character me;
     void Start()
     {
-        me = transform.parent.GetComponent<Character>();
+        me = transform.GetComponent<Character>();
     }
 
     private void OnTriggerEnter(Collider other)

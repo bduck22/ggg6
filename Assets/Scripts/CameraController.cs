@@ -47,6 +47,14 @@ public class CameraController : MonoBehaviour
         }
         transform.localRotation = Quaternion.Euler(35, 0, 0);
         character.transform.Rotate(0, Input.GetAxis("Mouse X"), 0);
+
+        for (int i = 0; i < characters.Length; i++)
+        {
+            if (!characters[i].played && !characters[i].Target)
+            {
+                characters[i].Walk(character.transform.position);
+            }
+        }
     }
 
     public void ChangeCharacter(bool N)
@@ -63,7 +71,10 @@ public class CameraController : MonoBehaviour
             character = characters[Number];
         }
         character.played=true;
-            transform.position = character.transform.position + new Vector3(0, 4, -2.5f);
-        transform.parent = character.transform;
+        transform.parent.parent = character.transform;
+        transform.parent.transform.localPosition = Vector3.zero;
+        transform.parent.transform.localRotation = Quaternion.identity;
+        transform.localPosition = new Vector3(0, 4, -2.5f);
+        transform.parent.GetChild(1).transform.localPosition = new Vector3(0, 15, 0);
     }
 }

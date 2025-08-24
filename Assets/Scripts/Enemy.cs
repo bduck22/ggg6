@@ -4,13 +4,35 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    // Start is called before the first frame update
+    public float Hp
+    {
+        get
+        {
+            return hp;
+        }
+        set
+        {
+            if (value <= 0)
+            {
+                Destroy(gameObject);
+            }
+            else if (value > MaxHp)
+            {
+                hp = MaxHp;
+            }
+            else
+            {
+                hp = value;
+            }
+        }
+    }
+    [SerializeField] private float hp;
+    public float MaxHp;
     void Start()
     {
         
     }
 
-    // Update is called once per frame
     void Update()
     {
         

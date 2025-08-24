@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -5,6 +6,13 @@ public enum CharacterStatus
 {
     None_Fight,
     Fight,
+}
+
+public enum CharacterType
+{
+    Knight,
+    Archer,
+    Mage
 }
 
 public class Character : MonoBehaviour
@@ -47,7 +55,7 @@ public class Character : MonoBehaviour
         }
         set
         {
-            if (value < 0)
+            if (value <= 0)
             {
                 Destroy(gameObject);
             }
@@ -72,9 +80,8 @@ public class Character : MonoBehaviour
         }
         set
         {
-            if (value < 0)
-            {
-                Destroy(gameObject);
+            if (value <= 0)
+            { 
             }
             else if (value > MaxMp)
             {
@@ -107,6 +114,10 @@ public class Character : MonoBehaviour
     [SerializeField] float attacktime;
     [SerializeField] bool isattack;
 
+    public Transform Target;
+
+    public CharacterType Type;
+
     void Start()
     {
         animator = GetComponentInChildren<Animator>();
@@ -114,6 +125,18 @@ public class Character : MonoBehaviour
     }
     void Update()
     {
+
+        if (attacktime >= 1)
+        {
+            if (!isattack)
+            {
+                isattack = true;
+            }
+        }
+        else
+        {
+            attacktime += Time.deltaTime * AttackRate;
+        }
         if (played)
         {
             float x = Input.GetAxis("Vertical");
@@ -137,36 +160,102 @@ public class Character : MonoBehaviour
                 rigidbody.velocity = new Vector3(0, rigidbody.velocity.y, rigidbody.velocity.z);
             }
 
-            if(attacktime >= 1)
+            if (Input.GetMouseButton(0)&&isattack)
             {
-                if(!isattack)
+                attacktime = 0;
+                switch (Type)
                 {
-                    isattack = true;
+                    case CharacterType.Knight: StartCoroutine(Attack(0,0.5f));
+                        break;
+                    case CharacterType.Archer: StartCoroutine(Attack(0.4f,1.5f));
+                        break;
+                    case CharacterType.Mage: StartCoroutine(Attack(0.2f,1f));
+                        break;
+                }
+            }
+        }
+        else
+        {
+            if (Target)
+            {
+                if(Vector3.Distance(transform.position, Target.position) <= Range)
+                {
+                    animator.SetBool("Walk", false);
+                    Lockon = true;
+                    transform.LookAt(Target);
+                    if (isattack)
+                    {
+                        attacktime = 0;
+                        switch (Type)
+                        {
+                            case CharacterType.Knight:
+                                StartCoroutine(Attack(0, 0.5f));
+                                break;
+                            case CharacterType.Archer:
+                                StartCoroutine(Attack(0.4f, 1.5f));
+                                break;
+                            case CharacterType.Mage:
+                                StartCoroutine(Attack(0.2f, 1f));
+                                break;
+                        }
+                    }
+                }
+                else
+                {
+                    Lockon = false;
+                    Walk(Target.position);
                 }
             }
             else
             {
-                attacktime += Time.deltaTime * AttackRate;
-            }
-
-            if (Input.GetMouseButton(0)&&isattack)
-            {
-                attacktime = 0;
-                Attack();
+                Lockon= false;
             }
         }
     }
+    public bool Lockon;
+
+    public void Walk(Vector3 Target)
+    {
+        if (!Lockon)
+        {
+            transform.LookAt(Target);
+            animator.SetBool("Walk", true);
+            if (Vector3.Distance(transform.position, Target) > 2)
+            {
+                transform.position = Vector3.MoveTowards(transform.position, Target, Speed * Time.deltaTime);
+            }
+            else
+            {
+                animator.SetBool("Walk", false);
+            }
+        }
+    }
+
     public GameObject AttackPrefab;
 
-    void Attack()
+    IEnumerator Attack(float time, float destroytime)
     {
+        animator.SetTrigger("Attack");
         isattack = false;
-        GameObject attackob = Instantiate(AttackPrefab, transform.position , transform.rotation);
+        yield return new WaitForSeconds(time);
+        Quaternion q = transform.rotation;
+        Vector3 p = transform.position;
+        GameObject attackob = Instantiate(AttackPrefab, p , q);
         Attack a = attackob.GetComponent<Attack>();
         a.Damage = Damage;
-        a.HitCount = 100;
+        switch (Type)
+        {
+            case CharacterType.Knight:
+                a.HitCount = 100;
+                break;
+            case CharacterType.Archer:
+                a.HitCount = 1;
+                break;
+            case CharacterType.Mage:
+                a.HitCount = 2;
+                break;
+        }
         a.character = this;
-        Destroy(attackob, 0.5f);
-        animator.SetTrigger("Attack");
+        Destroy(attackob, destroytime);
     }
 }

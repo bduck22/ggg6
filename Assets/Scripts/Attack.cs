@@ -65,14 +65,12 @@ public class Attack : MonoBehaviour
     public Buff Effect;
 
     public int HitCount;
-
-    void Start()
+    private void Update()
     {
-        
+        if (HitCount <= 0)
+        {
+            Destroy(gameObject);
+        }
     }
 
-    void Update()
-    {
-        
-    }
 }
