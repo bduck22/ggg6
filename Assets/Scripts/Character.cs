@@ -55,11 +55,13 @@ public class Skill
 
     public GameObject effect;
 
-    public float Mp;
-
     public float[] Damage = new float[5];
 
     public float[] SubValue = new float[5];
+
+    public float[] cool = new float[5];
+
+    public float[] Mp = new float[5];
 
     public bool Levelup()
     {
@@ -76,7 +78,7 @@ public class Skill
 
     public bool IsUsing(float Mp)
     {
-        if(coolTime <= time&&level>0&&Mp>=this.Mp)
+        if(coolTime <= time && level > 0 && Mp >= this.Mp[Level-1])
         {
             return true;
         }
@@ -279,6 +281,10 @@ public class Character : MonoBehaviour
     {
         if (skills[n].IsUsing(Mp))
         {
+            animator.SetTrigger("Skill");
+
+            skills[n].time = 0;
+
             Attack attack = Instantiate(skills[n].effect, transform.position, transform.rotation).GetComponent<Attack>();
             attack.character = this;
             switch (Type)
@@ -290,13 +296,19 @@ public class Character : MonoBehaviour
                             attack.HitCount = 1;
                             break;
                         case SkillType.E:
+                            attack.HitCount = (int)skills[n].SubValue[skills[n].Level-1];
                             break;
                         case SkillType.R:
+                            attack.HitCount = 100;
                             break;
                         case SkillType.F:
+                            attack.HitCount = (int)skills[n].SubValue[skills[n].Level - 1];
+                            Buff B = new Stun();
+                            B.Level = skills[n].Level;
+                            attack.Effect = B;
                             break;
                     }
-                    attack.Damage = skills[n].Damage[skills[n].Level] * Damage;
+                    attack.Damage = skills[n].Damage[skills[n].Level-1] * Damage;
                     break;
                 case CharacterType.Archer:
                     break;

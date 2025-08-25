@@ -9,21 +9,25 @@ public enum BuffType
     Stun
 }
 
-public abstract class Buff : MonoBehaviour
+public abstract class Buff
 {
     public BuffType Type;
     public float Level;
     public Enemy Target;
-    public abstract void Set();
+    public abstract void Set(Enemy T);
+    public abstract IEnumerator effect();
 }
 
 public class Poison : Buff
 {
-    public override void Set()
+    float speeddown;
+    float damage;
+    public override void Set(Enemy T)
     {
         Type = BuffType.Poison;
-        float speeddown=0;
-        float damage=0;
+        Target = T;
+        speeddown=0;
+        damage=0;
         switch (Level)
         {
             case 1:
@@ -48,11 +52,48 @@ public class Poison : Buff
                 break;
         }
 
-        StartCoroutine(effect(speeddown, damage));
     }
-    IEnumerator effect(float speeddown, float Damage)
+    public override IEnumerator effect()
     {
-        yield return new WaitForSeconds(Damage);
+        Target.Speed -= speeddown;
+        for (int i = 0; i < (Level<2?2:Level); i++)
+        {
+            Target.Hp -= damage;
+            yield return new WaitForSeconds(1);
+        }
+        Target.Speed += speeddown;
+    }
+}
+
+public class Stun : Buff
+{
+    float Per;
+    public override void Set(Enemy T)
+    {
+        Target = T;
+        Type = BuffType.Stun;
+        Per = 0;
+        switch (Level)
+        {
+            case 1:
+            case 2:
+                Per = 0.5f;
+                break;
+            case 3:
+            case 4:
+            case 5:
+                Per = 1;
+                break;
+        }
+    }
+
+    public override IEnumerator effect()
+    {
+        if(Random.Range(0f, 1f)<Per)
+        {
+            Target.Hp += 100;
+            yield return new WaitForSeconds(2);
+        }
     }
 }
 
@@ -62,6 +103,8 @@ public class Attack : MonoBehaviour
 
     public float Damage;
 
+    public float SubValue;
+
     public Buff Effect;
 
     public int HitCount;
@@ -69,8 +112,10 @@ public class Attack : MonoBehaviour
     {
         if (HitCount <= 0)
         {
-            Destroy(gameObject);
+            if (GetComponent<Collider>().enabled)
+            {
+                GetComponent<Collider>().enabled = false;
+            }
         }
     }
-
 }

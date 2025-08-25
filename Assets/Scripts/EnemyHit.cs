@@ -26,6 +26,11 @@ public class EnemyHit : MonoBehaviour
                     a.HitCount--;
                     me.Hp -= a.Damage;
                 }
+                if (a.Effect!=null)
+                {
+                    a.Effect.Set(me);
+                    StartCoroutine(a.Effect.effect());
+                }
             }
         }
     }

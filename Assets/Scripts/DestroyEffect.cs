@@ -4,15 +4,8 @@ using UnityEngine;
 
 public class DestroyEffect : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    public void D()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        Destroy(gameObject);
     }
 }

@@ -28,6 +28,8 @@ public class Enemy : MonoBehaviour
     }
     [SerializeField] private float hp;
     public float MaxHp;
+
+    public float Speed;
     void Start()
     {
         
