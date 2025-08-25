@@ -15,6 +15,78 @@ public enum CharacterType
     Mage
 }
 
+public enum SkillType
+{
+    Q,
+    E,
+    R,
+    F
+}
+
+[System.Serializable]
+public class Skill
+{
+    public SkillType Type;
+    public int Level
+    {
+        get
+        {
+            return level;
+        }
+        set
+        {
+            if(value > 5)
+            {
+                level = 5;
+            }
+            else
+            {
+                level = value;
+            }
+        }
+    }
+    [SerializeField] private int level;
+
+    public float coolTime;
+
+    public float time;
+
+    public Buff buff;
+
+    public GameObject effect;
+
+    public float Mp;
+
+    public float[] Damage = new float[5];
+
+    public float[] SubValue = new float[5];
+
+    public bool Levelup()
+    {
+        if(Level >= 5)
+        {
+            return false;
+        }
+        else
+        {
+            Level++;
+            return true;
+        }
+    }
+
+    public bool IsUsing(float Mp)
+    {
+        if(coolTime <= time&&level>0&&Mp>=this.Mp)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+}
+
 public class Character : MonoBehaviour
 {
     public bool played;
@@ -37,6 +109,7 @@ public class Character : MonoBehaviour
             if (value >= LevelGoal)
             {
                 Level++;
+                skillPoint++;
                 exp = value - LevelGoal;
             }
             else
@@ -100,6 +173,7 @@ public class Character : MonoBehaviour
     public float AttackRate;
     public float Citical;
     public float Range;
+    public int skillPoint;
 
     public List<int> Inventory;
 
@@ -117,6 +191,8 @@ public class Character : MonoBehaviour
     public Transform Target;
 
     public CharacterType Type;
+
+    public Skill[] skills;
 
     void Start()
     {
@@ -173,12 +249,70 @@ public class Character : MonoBehaviour
                         break;
                 }
             }
+
+            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                UseSkill(0);
+            }
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                UseSkill(1);
+            }
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                UseSkill(2);
+            }
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                UseSkill(3);
+            }
         }
-        else
+        foreach(Skill s in skills)
+        {
+            if(s.time < s.coolTime)
+            {
+                s.time += Time.deltaTime;
+            }
+        }
+    }
+    public void UseSkill(int n)
+    {
+        if (skills[n].IsUsing(Mp))
+        {
+            Attack attack = Instantiate(skills[n].effect, transform.position, transform.rotation).GetComponent<Attack>();
+            attack.character = this;
+            switch (Type)
+            {
+                case CharacterType.Knight:
+                    switch (skills[n].Type)
+                    {
+                        case SkillType.Q:
+                            attack.HitCount = 1;
+                            break;
+                        case SkillType.E:
+                            break;
+                        case SkillType.R:
+                            break;
+                        case SkillType.F:
+                            break;
+                    }
+                    attack.Damage = skills[n].Damage[skills[n].Level] * Damage;
+                    break;
+                case CharacterType.Archer:
+                    break;
+                case CharacterType.Mage:
+                    break;
+            }
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        if (!played)
         {
             if (Target)
             {
-                if(Vector3.Distance(transform.position, Target.position) <= Range)
+                if (Vector3.Distance(transform.position, Target.position) <= Range)
                 {
                     animator.SetBool("Walk", false);
                     Lockon = true;
@@ -208,7 +342,7 @@ public class Character : MonoBehaviour
             }
             else
             {
-                Lockon= false;
+                Lockon = false;
             }
         }
     }

@@ -35,7 +35,12 @@ public class CameraController : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
     }
 
-    void Update()
+    private void Update()
+    {
+        transform.localRotation = Quaternion.Euler(35, 0, 0);
+        character.transform.Rotate(0, Input.GetAxis("Mouse X"), 0);
+    }
+    private void FixedUpdate()
     {
         if (Input.GetKeyDown(KeyCode.Tab))
         {
@@ -45,8 +50,6 @@ public class CameraController : MonoBehaviour
         {
             ChangeCharacter(false);
         }
-        transform.localRotation = Quaternion.Euler(35, 0, 0);
-        character.transform.Rotate(0, Input.GetAxis("Mouse X"), 0);
 
         for (int i = 0; i < characters.Length; i++)
         {
@@ -56,6 +59,8 @@ public class CameraController : MonoBehaviour
             }
         }
     }
+
+
 
     public void ChangeCharacter(bool N)
     {
