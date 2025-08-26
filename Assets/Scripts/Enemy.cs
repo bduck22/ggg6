@@ -30,6 +30,8 @@ public class Enemy : MonoBehaviour
     public float MaxHp;
 
     public float Speed;
+
+    public float Damage;
     void Start()
     {
         

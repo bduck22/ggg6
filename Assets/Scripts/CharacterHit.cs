@@ -12,6 +12,9 @@ public class CharacterHit : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        
+        if (other.CompareTag("Attack"))
+        {
+            Attack a = other.GetComponent<Attack>();
+        }
     }
 }

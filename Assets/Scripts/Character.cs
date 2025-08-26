@@ -47,8 +47,6 @@ public class Skill
     }
     [SerializeField] private int level;
 
-    public float coolTime;
-
     public float time;
 
     public Buff buff;
@@ -78,7 +76,7 @@ public class Skill
 
     public bool IsUsing(float Mp)
     {
-        if(coolTime <= time && level > 0 && Mp >= this.Mp[Level-1])
+        if(cool[Level-1] <= time && level > 0 && Mp >= this.Mp[Level-1])
         {
             return true;
         }
@@ -140,6 +138,11 @@ public class Character : MonoBehaviour
             }
             else
             {
+                if(value < hp)
+                {
+                    StopCoroutine(NoFight());
+                    StartCoroutine(NoFight());
+                }
                 hp = value;
             }
         }
@@ -182,6 +185,7 @@ public class Character : MonoBehaviour
 
     public void Init()
     {
+        Status = CharacterStatus.None_Fight;
         Hp = MaxHp;
         Mp = MaxMp;
         Exp = 0;
@@ -192,15 +196,22 @@ public class Character : MonoBehaviour
 
     public Transform Target;
 
+    public CharacterStatus Status;
+
     public CharacterType Type;
 
     public Skill[] skills;
 
     void Start()
     {
+        Status = CharacterStatus.None_Fight;
         animator = GetComponentInChildren<Animator>();
         rigidbody = GetComponent<Rigidbody>();
+
+        InvokeRepeating("MpHeal", 1, 1);
     }
+
+    
     void Update()
     {
 
@@ -213,6 +224,7 @@ public class Character : MonoBehaviour
         }
         else
         {
+            isattack = false;
             attacktime += Time.deltaTime * AttackRate;
         }
         if (played)
@@ -271,21 +283,47 @@ public class Character : MonoBehaviour
         }
         foreach(Skill s in skills)
         {
-            if(s.time < s.coolTime)
+            if(s.time < s.cool[s.Level-1])
             {
                 s.time += Time.deltaTime;
             }
         }
-    }
-    public void UseSkill(int n)
-    {
-        if (skills[n].IsUsing(Mp))
+
+        if (healtime >= 1)
         {
+            healtime = 0;
+            Hp += MaxHp * 0.05f;
+        }
+        else
+        {
+            healtime += Time.deltaTime;
+        }
+    }
+    public float healtime;
+    public IEnumerator NoFight()
+    {
+        Status = CharacterStatus.Fight;
+        yield return new WaitForSeconds(5);
+        Status = CharacterStatus.None_Fight;
+    }
+
+    void MpHeal()
+    {
+        Mp += MaxMp * 0.01f;
+    }
+    public bool UseSkill(int n)
+    {
+        Skill skill = skills[n];
+        if (skill.IsUsing(Mp))
+        {
+            StopCoroutine(NoFight());
+            StartCoroutine(NoFight());
+            Mp -= skill.Mp[skill.Level-1];
             animator.SetTrigger("Skill");
 
-            skills[n].time = 0;
+            skill.time = 0;
 
-            Attack attack = Instantiate(skills[n].effect, transform.position, transform.rotation).GetComponent<Attack>();
+            Attack attack = Instantiate(skill.effect, transform.position, transform.rotation).GetComponent<Attack>();
             attack.character = this;
             switch (Type)
             {
@@ -296,26 +334,29 @@ public class Character : MonoBehaviour
                             attack.HitCount = 1;
                             break;
                         case SkillType.E:
-                            attack.HitCount = (int)skills[n].SubValue[skills[n].Level-1];
+                            attack.HitCount = (int)skill.SubValue[skill.Level-1];
                             break;
                         case SkillType.R:
                             attack.HitCount = 100;
+                            attack.SubValue = skill.SubValue[skill.Level - 1]*Damage;
                             break;
                         case SkillType.F:
-                            attack.HitCount = (int)skills[n].SubValue[skills[n].Level - 1];
+                            attack.HitCount = (int)skills[n].SubValue[skill.Level - 1];
                             Buff B = new Stun();
-                            B.Level = skills[n].Level;
+                            B.Level = skill.Level;
                             attack.Effect = B;
                             break;
                     }
-                    attack.Damage = skills[n].Damage[skills[n].Level-1] * Damage;
+                    attack.Damage = skill.Damage[skill.Level-1] * Damage;
                     break;
                 case CharacterType.Archer:
                     break;
                 case CharacterType.Mage:
                     break;
             }
+            return true;
         }
+        else return false;
     }
 
     private void FixedUpdate()
@@ -332,17 +373,33 @@ public class Character : MonoBehaviour
                     if (isattack)
                     {
                         attacktime = 0;
-                        switch (Type)
+                        bool skill = false;
+                        for (int i = 3; i >= 0; i--)
                         {
-                            case CharacterType.Knight:
-                                StartCoroutine(Attack(0, 0.5f));
+                            if (!skill)
+                            {
+                                skill = UseSkill(i);
+                            }
+                            else
+                            {
                                 break;
-                            case CharacterType.Archer:
-                                StartCoroutine(Attack(0.4f, 1.5f));
-                                break;
-                            case CharacterType.Mage:
-                                StartCoroutine(Attack(0.2f, 1f));
-                                break;
+                            }
+                        }
+
+                        if (!skill)
+                        {
+                            switch (Type)
+                            {
+                                case CharacterType.Knight:
+                                    StartCoroutine(Attack(0, 0.5f));
+                                    break;
+                                case CharacterType.Archer:
+                                    StartCoroutine(Attack(0.4f, 1.5f));
+                                    break;
+                                case CharacterType.Mage:
+                                    StartCoroutine(Attack(0.2f, 1f));
+                                    break;
+                            }
                         }
                     }
                 }
@@ -381,6 +438,8 @@ public class Character : MonoBehaviour
 
     IEnumerator Attack(float time, float destroytime)
     {
+        StopCoroutine(NoFight());
+        StartCoroutine(NoFight());
         animator.SetTrigger("Attack");
         isattack = false;
         yield return new WaitForSeconds(time);

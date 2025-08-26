@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1495459290095814449}
   - component: {fileID: 216058648067917372}
   - component: {fileID: 7780071416268039253}
+  - component: {fileID: -7038760255155040318}
   m_Layer: 0
   m_Name: ArcherAttack
   m_TagString: Untagged
@@ -49,7 +50,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   character: {fileID: 0}
   Damage: 0
-  Effect: {fileID: 0}
+  SubValue: 0
   HitCount: 0
 --- !u!114 &216058648067917372
 MonoBehaviour:
@@ -84,6 +85,18 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.33400583, y: 0.40256822, z: 0.7229438}
   m_Center: {x: -0.110000014, y: 0.56, z: 0.7805706}
+--- !u!114 &-7038760255155040318
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6044282108198085503}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80225bb4b6e813549ba1d65dd2ff1c12, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &5979529542678137599
 PrefabInstance:
   m_ObjectHideFlags: 0

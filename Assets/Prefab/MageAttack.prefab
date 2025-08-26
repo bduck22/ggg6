@@ -4842,6 +4842,7 @@ GameObject:
   - component: {fileID: 426082184318727018}
   - component: {fileID: 1982780419887707847}
   - component: {fileID: 6650130498736620652}
+  - component: {fileID: 8137156146492933453}
   m_Layer: 0
   m_Name: MageAttack
   m_TagString: Untagged
@@ -4879,7 +4880,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   character: {fileID: 0}
   Damage: 0
-  Effect: {fileID: 0}
+  SubValue: 0
   HitCount: 1
 --- !u!135 &1982780419887707847
 SphereCollider:
@@ -4912,5 +4913,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 56f7f2a11d0e3cb40af26754c5f94ad4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &8137156146492933453
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8626603904383445424}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80225bb4b6e813549ba1d65dd2ff1c12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

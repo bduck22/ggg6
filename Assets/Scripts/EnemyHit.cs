@@ -31,6 +31,13 @@ public class EnemyHit : MonoBehaviour
                     a.Effect.Set(me);
                     StartCoroutine(a.Effect.effect());
                 }
+                if (other.GetComponent<PeneScript>())
+                {
+                    if (a.HitCount == 99)
+                    {
+                        other.GetComponent<PeneScript>().Hit();
+                    }
+                }
             }
         }
     }
