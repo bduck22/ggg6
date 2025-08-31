@@ -5,6 +5,8 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
+
+    public CameraController CameraController;
     void Start()
     {
         Instance = this;
