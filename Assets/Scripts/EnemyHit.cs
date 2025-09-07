@@ -24,7 +24,9 @@ public class EnemyHit : MonoBehaviour
                 if (a.HitCount > 0)
                 {
                     a.HitCount--;
+                    float hp = me.Hp;
                     me.Hp -= a.Damage;
+                    a.character.Exp += me.EXP * ((hp - me.Hp / me.MaxHp));
                 }
                 if (a.Effect!=null)
                 {

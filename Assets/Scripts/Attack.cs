@@ -91,8 +91,9 @@ public class Stun : Buff
     {
         if(Random.Range(0f, 1f)<Per)
         {
-            Target.Hp += 100;
+            Target.stun = true;
             yield return new WaitForSeconds(2);
+            Target.stun = false;
         }
     }
 }

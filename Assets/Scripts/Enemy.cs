@@ -14,7 +14,11 @@ public class Enemy : MonoBehaviour
         {
             if (value <= 0)
             {
-                Destroy(gameObject);
+                hp = 0;
+                Dead = true;
+                animator.SetTrigger("Dead");
+                animator.SetBool("Walk", false);
+                Destroy(gameObject, 3f);
             }
             else if (value > MaxHp)
             {
@@ -36,6 +40,8 @@ public class Enemy : MonoBehaviour
     public bool stun;
 
     public Character Target;
+
+    public Animator animator;
     void Start()
     {
         InvokeRepeating("LoadTarget", 0.25f, 0.25f);
@@ -47,9 +53,13 @@ public class Enemy : MonoBehaviour
 
     public float Range;
 
+    public bool Dead;
+
+    public float EXP;
+
     void Update()
     {
-        if (!stun) 
+        if (!stun&&!Dead) 
         {
             if (!isAttack&&time >= 1)
             {
@@ -62,8 +72,9 @@ public class Enemy : MonoBehaviour
             if (Target)
             {
                 transform.LookAt(Target.transform);
-                if(Vector3.Distance(transform.position, Target.transform.position) <= Range)
+                if (Vector3.Distance(transform.position, Target.transform.position) <= Range)
                 {
+                    animator.SetBool("Walk", false);
                     if (isAttack)
                     {
                         isAttack = false;
@@ -71,7 +82,11 @@ public class Enemy : MonoBehaviour
                         Attack();
                     }
                 }
-                else transform.position = Vector3.MoveTowards(transform.position, Target.transform.position, Speed*Time.deltaTime);   
+                else
+                {
+                    animator.SetBool("Walk", true);
+                    transform.position = Vector3.MoveTowards(transform.position, Target.transform.position, Speed * Time.deltaTime);
+                }
             }
         }
     }
@@ -92,6 +107,7 @@ public class Enemy : MonoBehaviour
 
     public void Attack()
     {
-
+        animator.SetTrigger("Attack");
+        Target.Hp -= Damage;
     }
 }

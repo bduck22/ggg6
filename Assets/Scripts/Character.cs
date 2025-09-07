@@ -140,8 +140,7 @@ public class Character : MonoBehaviour
             {
                 if(value < hp)
                 {
-                    StopCoroutine(NoFight());
-                    StartCoroutine(NoFight());
+                    fighttime = 0;
                 }
                 hp = value;
             }
@@ -214,7 +213,15 @@ public class Character : MonoBehaviour
     
     void Update()
     {
-
+        if (fighttime >= 5)
+        {
+            Status = CharacterStatus.None_Fight;
+        }
+        else
+        {
+            Status = CharacterStatus.Fight;
+            fighttime += Time.deltaTime;
+        }
         if (attacktime >= 1)
         {
             if (!isattack)
@@ -296,16 +303,12 @@ public class Character : MonoBehaviour
         }
         else
         {
-            healtime += Time.deltaTime;
+            if(Status==CharacterStatus.None_Fight)healtime += Time.deltaTime;
         }
     }
     public float healtime;
-    public IEnumerator NoFight()
-    {
-        Status = CharacterStatus.Fight;
-        yield return new WaitForSeconds(5);
-        Status = CharacterStatus.None_Fight;
-    }
+
+    public float fighttime;
 
     void MpHeal()
     {
@@ -316,8 +319,7 @@ public class Character : MonoBehaviour
         Skill skill = skills[n];
         if (skill.IsUsing(Mp))
         {
-            StopCoroutine(NoFight());
-            StartCoroutine(NoFight());
+            fighttime = 0;
             Mp -= skill.Mp[skill.Level-1];
             animator.SetTrigger("Skill");
 
@@ -438,8 +440,7 @@ public class Character : MonoBehaviour
 
     IEnumerator Attack(float time, float destroytime)
     {
-        StopCoroutine(NoFight());
-        StartCoroutine(NoFight());
+        fighttime = 0;
         animator.SetTrigger("Attack");
         isattack = false;
         yield return new WaitForSeconds(time);
