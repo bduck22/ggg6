@@ -283,7 +283,7 @@ public class Character : MonoBehaviour
         }
         foreach(Skill s in skills)
         {
-            if(s.time < s.cool[s.Level-1])
+            if(s.Level!=0&&s.time < s.cool[s.Level-1])
             {
                 s.time += Time.deltaTime;
             }
